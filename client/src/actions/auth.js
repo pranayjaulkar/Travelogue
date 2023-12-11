@@ -38,7 +38,6 @@ export const signIn = (formData, navigate) => async (dispatch) => {
       res.status === 403 &&
       res.data.error === "INVALID_EMAIL_OR_PASSWORD"
     ) {
-      console.log(error);
       dispatch({
         type: AUTH_ERROR,
         payload: {

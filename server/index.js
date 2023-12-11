@@ -15,27 +15,23 @@ const app = express();
 const DB_CONNECTION_URL =
   process.env.DB_CONNECTION_URL || "mongodb://127.0.0.1:27017/memories";
 const PORT = process.env.PORT || 5000;
-const REACT_APP_HOST_ADDRESS = process.env.REACT_APP_HOST_ADDRESS;
-if (process.env.NODE_ENV === "production") {
+const SERVER_HOST_ADDRESS = process.env.SERVER_HOST_ADDRESS;
+// if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist/")));
   app.use(
     cors({
-      origin: REACT_APP_HOST_ADDRESS,
+      origin: SERVER_HOST_ADDRESS,
       credentials: true,
     })
   );
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
-  });
-} else {
-  app.use(
-    cors({
-      origin: ["http://localhost:3000", "http://localhost:5000"],
-      credentials: true,
-    })
-  );
-}
+// } else {
+//   app.use(
+//     cors({
+//       origin: ["http://localhost:3000", "http://localhost:5000"],
+//       credentials: true,
+//     })
+//   );
+// }
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -47,6 +43,12 @@ mongoose
   .catch((error) => {
     console.log("MongoDB Connection Error\n", error);
   });
+
+// if (process.env.NODE_ENV === "production") {
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+  });
+// }
 app.all("*", (req, res, next) => {
   next(new customError("Page Not Found", 404));
 });
