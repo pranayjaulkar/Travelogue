@@ -4,21 +4,22 @@ import {
   SOMETHING_WENT_WRONG,
 } from "../constants/actionTypes";
 
-const errorObj = {
+const defaultError = {
   error: null,
   type: "",
   message: "",
   statusCode: null,
 };
-export default function errorReducer(error = errorObj, action) {
+export default function errorReducer(error = defaultError, action) {
   if (action.type === AUTH_ERROR) {
-    return { ...error, ...action.payload };
+    return { ...action.payload };
   }
   if (action.type === CLEAR_AUTH_ERROR) {
-    return { errorObj };
+    return { defaultError };
   }
   if (action.type === SOMETHING_WENT_WRONG) {
-    return { ...error, SOMETHING_WENT_WRONG: action.payload };
+    console.log("action: ", action);
+    return { ...action.payload };
   } else {
     return error;
   }

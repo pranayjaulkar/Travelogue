@@ -114,7 +114,9 @@ export default function Create() {
       className="paper"
       style={{
         alignItems: `${isLoading ? "center" : "flex-start"}`,
-        boxShadow: "var(--lg-shadow)", margin:"1rem 2rem"
+        border: "none",
+        boxShadow: "none",
+        margin: "1rem 2rem",
       }}
     >
       {isLoading ? (

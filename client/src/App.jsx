@@ -5,20 +5,22 @@ import {
   Auth,
   PostDetails,
   Create,
-  PageNotFound,
+  ErrorComponent,
 } from "./components/";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import { SOMETHING_WENT_WRONG } from "./constants/actionTypes";
 
 function App() {
-  // const [count, setCount] = useState(0);
   const user = useSelector((state) => state.user);
   const { currentPost } = useSelector((state) => state.posts);
 
   return (
     <>
       <BrowserRouter>
+        <Toaster />
         <Navbar />
         <Routes>
           <Route exact path="/" element={<Home />}></Route>
@@ -49,7 +51,20 @@ function App() {
             ></Route>
           )}
           <Route exact path="/posts" element={<Home />}></Route>
-          <Route exact path="*" element={<PageNotFound />}></Route>
+          <Route
+            exact
+            path="*"
+            element={
+              <ErrorComponent
+                error={{
+                  type: SOMETHING_WENT_WRONG,
+                  error: null,
+                  message: "Page not found",
+                  statusCode: 404,
+                }}
+              />
+            }
+          ></Route>
         </Routes>
       </BrowserRouter>
     </>

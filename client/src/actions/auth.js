@@ -8,6 +8,7 @@ import {
   START_LOADING,
   STOP_LOADING,
 } from "../constants/actionTypes";
+import toast from "react-hot-toast";
 
 export const signIn = (formData, navigate) => async (dispatch) => {
   try {
@@ -19,8 +20,10 @@ export const signIn = (formData, navigate) => async (dispatch) => {
     if (user) {
       dispatch({ type: SIGN_IN, payload: user });
       navigate("/");
+      toast.success("Successfully Logged In");
     }
   } catch (error) {
+    console.log("error: ", error);
     dispatch({ type: STOP_LOADING });
     const res = error.response;
     if (res && res.status === 404 && res.data.error === "USER_NOT_FOUND") {
@@ -65,7 +68,6 @@ export const signIn = (formData, navigate) => async (dispatch) => {
     } else {
       dispatch({
         type: SOMETHING_WENT_WRONG,
-
         payload: {
           type: SOMETHING_WENT_WRONG,
           statusCode: null,
@@ -73,11 +75,10 @@ export const signIn = (formData, navigate) => async (dispatch) => {
           message: error.message,
         },
       });
-      navigate("/error");
     }
   }
 };
-export const googleSignIn = (data, navigate) => async (dispatch) => {
+export const googleSignIn = (data) => async (dispatch) => {
   try {
     const res = await api.SignIn(data);
     const user = res.data;
@@ -85,6 +86,7 @@ export const googleSignIn = (data, navigate) => async (dispatch) => {
       dispatch({ type: SIGN_IN, payload: user });
     }
   } catch (error) {
+    console.log("error: ", error);
     dispatch({ type: STOP_LOADING });
     dispatch({
       type: SOMETHING_WENT_WRONG,
@@ -95,7 +97,6 @@ export const googleSignIn = (data, navigate) => async (dispatch) => {
         message: error.message,
       },
     });
-    navigate("/error");
   }
 };
 export const signUp = (formData, navigate) => async (dispatch) => {
@@ -108,6 +109,7 @@ export const signUp = (formData, navigate) => async (dispatch) => {
     dispatch({ type: STOP_LOADING });
     navigate("/");
   } catch (error) {
+    console.log("error: ", error);
     const res = error.response;
     dispatch({ type: STOP_LOADING });
     if (res && res.status === 400 && res.data.error === "USER_ALREADY_EXISTS") {
@@ -130,11 +132,10 @@ export const signUp = (formData, navigate) => async (dispatch) => {
           message: error.message,
         },
       });
-      navigate("/error");
     }
   }
 };
-export const logout = (navigate) => async (dispatch) => {
+export const logout = () => async (dispatch) => {
   try {
     const res = await api.logout();
     if (res.status === 200) {
@@ -150,7 +151,6 @@ export const logout = (navigate) => async (dispatch) => {
         message: error.message,
       },
     });
-    navigate("/error");
   }
 };
 export const refreshAccessToken = (navigate) => async (dispatch) => {
@@ -175,9 +175,13 @@ export const refreshAccessToken = (navigate) => async (dispatch) => {
     } else {
       dispatch({
         type: SOMETHING_WENT_WRONG,
-        payload: { error, message: error.message },
+        payload: {
+          type: SOMETHING_WENT_WRONG,
+          statusCode: null,
+          error,
+          message: error.message,
+        },
       });
-      // navigate("/error");
     }
   }
 };

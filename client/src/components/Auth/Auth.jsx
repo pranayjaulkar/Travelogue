@@ -58,7 +58,7 @@ export default function Auth() {
   });
 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const error = useSelector((state) => state.error);
+  const globalError = useSelector((state) => state.error);
   const { isLoading } = useSelector((state) => state.posts);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -101,8 +101,8 @@ export default function Auth() {
       setLastNameError,
       setConfirmPasswordError,
     };
-    const error = validate(opts);
-    if (!error) {
+    const validationError = validate(opts);
+    if (!validationError) {
       if (isSignUp) {
         dispatch(signUp(formData, navigate));
       } else {
@@ -247,10 +247,10 @@ export default function Auth() {
             )}
           </Grid>
           {/*AUTH ERROR */}
-          {error.type === AUTH_ERROR && (
+          {globalError.type === AUTH_ERROR && (
             <Grid item xs={12} sm={12} sx={{margin:"1rem 0.5rem"}}>
               <span className="text-xs text-red-600 font-semibold p-2 bg-red-100">
-                &#9432; {error.message}
+                &#9432; {globalError.message}
               </span>
             </Grid>
           )}
@@ -296,7 +296,7 @@ export default function Auth() {
           </div>
 
           {/* Already have an account? | Don't have an account? */}
-          <Grid container justifyContent="flex-end">
+          <Grid container justifyContent="center" style={{marginTop :"1rem"}}>
             <Grid item>
               <Button
                 onClick={() => {

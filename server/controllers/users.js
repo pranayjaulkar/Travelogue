@@ -2,7 +2,6 @@ const User = require("../models/user.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const dotenv = require("dotenv");
-const customError = require("../utils/error.js");
 
 const createTokens = (user) => {
   //create accesstoken

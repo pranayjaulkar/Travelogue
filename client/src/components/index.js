@@ -4,5 +4,6 @@ export { default as Home } from "./Home/Home";
 export { default as Auth } from "./Auth/Auth";
 export { default as Pagination } from "./Pagination/Pagination";
 export { default as PostDetails } from "./PostDetails/PostDetails";
-export { default as PageNotFound } from "./PageNotFound/PageNotFound";
+export { default as PageNotFound } from "./Error/PageNotFound";
+export { default as ErrorComponent } from "./Error/ErrorComponent";
 export { default as Create } from "./Create/Create";

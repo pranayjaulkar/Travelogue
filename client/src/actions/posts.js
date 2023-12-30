@@ -13,7 +13,8 @@ import {
   NO_POST_FOUND,
   UPDATE_CURRENT_POST,
 } from "../constants/actionTypes";
-export const getPost = (_id, navigate) => async (dispatch) => {
+import toast from "react-hot-toast";
+export const getPost = (_id) => async (dispatch) => {
   try {
     dispatch({ type: START_LOADING });
     const res = await api.getPost(_id);
@@ -35,13 +36,17 @@ export const getPost = (_id, navigate) => async (dispatch) => {
       dispatch({ type: STOP_LOADING });
       dispatch({
         type: SOMETHING_WENT_WRONG,
-        payload: { name: error, message: error.message },
+        payload: {
+          type: SOMETHING_WENT_WRONG,
+          statusCode: null,
+          error,
+          message: error.message,
+        },
       });
-      navigate("/error");
     }
   }
 };
-export const getPosts = (page, navigate) => async (dispatch) => {
+export const getPosts = (page) => async (dispatch) => {
   try {
     //Display Loading icon
     dispatch({ type: START_LOADING });
@@ -53,9 +58,13 @@ export const getPosts = (page, navigate) => async (dispatch) => {
     dispatch({ type: STOP_LOADING });
     dispatch({
       type: SOMETHING_WENT_WRONG,
-      payload: { error, message: error.message },
+      payload: {
+        type: SOMETHING_WENT_WRONG,
+        statusCode: null,
+        error,
+        message: error.message,
+      },
     });
-    navigate("/error");
   }
 };
 export const getPostsBySearch = (searchQuery, navigate) => async (dispatch) => {
@@ -84,9 +93,13 @@ export const getPostsBySearch = (searchQuery, navigate) => async (dispatch) => {
     } else {
       dispatch({
         type: SOMETHING_WENT_WRONG,
-        payload: { error, message: error.message },
+        payload: {
+          type: SOMETHING_WENT_WRONG,
+          statusCode: null,
+          error,
+          message: error.message,
+        },
       });
-      navigate("/error");
     }
   }
 };
@@ -102,7 +115,15 @@ export const createPost =
         const imgRes = await api.imageUpload(imgData, accessToken);
         //if image links array(imgres.data) is empty dispatch SOMETHING_WENT_WRONG else add image links array to post to upload to database
         if (!imgRes.data.length) {
-          dispatch({ type: SOMETHING_WENT_WRONG });
+          dispatch({
+            type: SOMETHING_WENT_WRONG,
+            payload: {
+              type: SOMETHING_WENT_WRONG,
+              statusCode: 500,
+              error: null,
+              message: "Something went wrong",
+            },
+          });
           dispatch({ type: STOP_LOADING });
         } else if (post.images && post.images.length) {
           post = { ...post, images: [...post.images, ...imgRes.data] };
@@ -113,10 +134,11 @@ export const createPost =
       //upload post to database
       const res = await api.createPost(post, accessToken);
       dispatch({ type: CREATE, payload: res.data });
-      //navigate to the post
-      navigate(`/posts/${res.data._id}`);
       //Stop displaying Loading icon
       dispatch({ type: STOP_LOADING });
+      toast.success("Post Created Successfully");
+      //navigate to the post
+      navigate(`/posts/${res.data._id}`);
     } catch (error) {
       const res = error.response;
       dispatch({ type: STOP_LOADING });
@@ -130,9 +152,13 @@ export const createPost =
       } else {
         dispatch({
           type: SOMETHING_WENT_WRONG,
-          payload: { error, message: error.message },
+          payload: {
+            type: SOMETHING_WENT_WRONG,
+            statusCode: null,
+            error,
+            message: error.message,
+          },
         });
-        navigate("/error");
       }
     }
   };
@@ -146,7 +172,15 @@ export const updatePost =
       if (imagesExists) {
         const imgRes = await api.imageUpload(imgData, accessToken);
         if (!imgRes.data) {
-          dispatch({ type: SOMETHING_WENT_WRONG });
+          dispatch({
+            type: SOMETHING_WENT_WRONG,
+            payload: {
+              type: SOMETHING_WENT_WRONG,
+              statusCode: null,
+              error: null,
+              message: "Something went wrong",
+            },
+          });
           dispatch({ type: STOP_LOADING });
         } else if (post.images && post.images.length) {
           post = { ...post, images: [...post.images, ...imgRes.data] };
@@ -164,8 +198,9 @@ export const updatePost =
       else {
         dispatch({ type: UPDATE, payload: res.data });
       }
-      navigate(`/posts/${res.data._id}`);
       dispatch({ type: STOP_LOADING });
+      toast.success("Post updated successfully");
+      navigate(`/posts/${res.data._id}`);
     } catch (error) {
       const res = error.response;
       dispatch({ type: STOP_LOADING });
@@ -180,9 +215,13 @@ export const updatePost =
       } else {
         dispatch({
           type: SOMETHING_WENT_WRONG,
-          payload: { error, message: error.message },
+          payload: {
+            type: SOMETHING_WENT_WRONG,
+            statusCode: null,
+            error,
+            message: error.message,
+          },
         });
-        navigate("/error");
       }
     }
   };
@@ -192,18 +231,23 @@ export const deletePost = (_id, navigate, accessToken) => async (dispatch) => {
     dispatch({ type: START_LOADING });
     const res = await api.deletePost(_id, accessToken);
     dispatch({ type: DELETE, payload: res.data._id });
+    toast.success("Post deleted successfully");
     navigate("/");
   } catch (error) {
     dispatch({ type: STOP_LOADING });
     dispatch({
       type: SOMETHING_WENT_WRONG,
-      payload: { error, message: error.message },
+      payload: {
+        type: SOMETHING_WENT_WRONG,
+        statusCode: null,
+        error,
+        message: error.message,
+      },
     });
-    navigate("/error");
   }
 };
 
-export const likePost = (post, navigate, accessToken) => async (dispatch) => {
+export const likePost = (post, accessToken) => async (dispatch) => {
   try {
     //update only ui like count
     dispatch({ type: UPDATE, payload: post });
@@ -214,8 +258,12 @@ export const likePost = (post, navigate, accessToken) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: SOMETHING_WENT_WRONG,
-      payload: { error, message: error.message },
+      payload: {
+        type: SOMETHING_WENT_WRONG,
+        statusCode: null,
+        error,
+        message: error.message,
+      },
     });
-    navigate("/error");
   }
 };

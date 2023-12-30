@@ -12,6 +12,9 @@ import {
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 import MenuIcon from "@mui/icons-material/Menu";
 import SmallDevicesAccountMenu from "./components/SmallDevicesAccountMenu";
+import { ErrorComponent } from "../";
+import toast from "react-hot-toast";
+import "./Navbar.css";
 
 export default function Navbar() {
   const user = useSelector((state) => state.user);
@@ -23,6 +26,7 @@ export default function Navbar() {
     setToggleMenu(false);
     dispatch(logout());
     navigate("/");
+    toast.success("Logout Successfull");
   };
   const handleToggleMenu = () => {
     setToggleMenu((previousState) => !previousState);
@@ -35,22 +39,7 @@ export default function Navbar() {
     dispatch(refreshAccessToken(navigate));
   }, [dispatch, navigate]);
   if (error.type === SOMETHING_WENT_WRONG) {
-    return (
-      <div className="fixed w-[100vw] h-[100vh] bg-white z-10 ">
-        <div className=" flex flex-col w-full h-full pt-24 items-center">
-          <span className="text-red text-5xl font-semibold mb-16">
-            Something went wrong
-          </span>
-          <span>{error.statusCode}</span>
-          <span>
-            {error.message}. Go back to{" "}
-            <Link className="text-[#33A9D4]" to="/">
-              Home Page
-            </Link>
-          </span>
-        </div>
-      </div>
-    );
+    return <ErrorComponent error={error} />;
   }
   return (
     <div className="flex justify-center items-center w-full">
@@ -95,15 +84,18 @@ export default function Navbar() {
               >
                 Home
               </Link>
-              <Link
-                to="/posts/create"
+              <div
+                // to="/posts/create"
                 onClick={() => {
-                  setToggleMenu(false);
+                  if (user) {
+                    setToggleMenu(false);
+                    navigate("/posts/create");
+                  } else toast.error("You are not Logged in");
                 }}
                 className="px-2 py-4 rounded font-semibold no-underline text-[#33A9D4] hover:cursor-pointer hover:text-[#f50057] transition-colors duration-300 ease-in-out"
               >
                 Create Post
-              </Link>
+              </div>
 
               {user ? (
                 <>
