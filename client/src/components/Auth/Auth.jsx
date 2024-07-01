@@ -33,6 +33,7 @@ export default function Auth() {
     password: "",
     confirmPassword: "",
   };
+  const user = useSelector((state) => state.user);
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
@@ -117,6 +118,7 @@ export default function Auth() {
   };
 
   useEffect(() => {
+    if (user) navigate("/");
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
@@ -128,10 +130,7 @@ export default function Auth() {
   }, []);
   return (
     <Container component="main" maxWidth="xs" sx={{ padding: "0px" }}>
-      <Paper
-        className="flex flex-col mt-12 p-4 items-center min-w-[316px] "
-        sx={{ boxShadow: "var(--sm-shadow)" }}
-      >
+      <Paper className="flex flex-col mt-12 p-4 items-center min-w-[316px] " sx={{ boxShadow: "var(--sm-shadow)" }}>
         <Avatar
           className="m-4"
           sx={{
@@ -140,9 +139,7 @@ export default function Auth() {
         >
           <LockIcon />
         </Avatar>
-        <Typography variant="h5">
-          {isSignUp ? "Sign Up" : "Sign In"}{" "}
-        </Typography>
+        <Typography variant="h5">{isSignUp ? "Sign Up" : "Sign In"} </Typography>
         <form className="w-full mt-4" onSubmit={handleSubmit}>
           <Grid container sx={{ margin: "0px", width: "100%" }}>
             {isSignUp && (
@@ -170,12 +167,7 @@ export default function Auth() {
             )}
 
             {/* Email */}
-            <Input
-              name="email"
-              label="Email Address"
-              handleChange={handleChange}
-              error={emailError}
-            />
+            <Input name="email" label="Email Address" handleChange={handleChange} error={emailError} />
 
             {/* Password */}
             <Grid item xs={12} sm={12} sx={{ margin: ".5rem" }}>
@@ -191,18 +183,8 @@ export default function Auth() {
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        onClick={() =>
-                          setShowPassword(
-                            (prevShowPassword) => !prevShowPassword
-                          )
-                        }
-                      >
-                        {showPassword ? (
-                          <VisibilityIcon />
-                        ) : (
-                          <VisibilityOffIcon />
-                        )}
+                      <IconButton onClick={() => setShowPassword((prevShowPassword) => !prevShowPassword)}>
+                        {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -226,18 +208,9 @@ export default function Auth() {
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton
-                          onClick={() =>
-                            setShowConfirmPassword(
-                              (prevShowConfirmPassword) =>
-                                !prevShowConfirmPassword
-                            )
-                          }
+                          onClick={() => setShowConfirmPassword((prevShowConfirmPassword) => !prevShowConfirmPassword)}
                         >
-                          {showConfirmPassword ? (
-                            <VisibilityIcon />
-                          ) : (
-                            <VisibilityOffIcon />
-                          )}
+                          {showConfirmPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
                         </IconButton>
                       </InputAdornment>
                     ),
@@ -248,10 +221,8 @@ export default function Auth() {
           </Grid>
           {/*AUTH ERROR */}
           {globalError.type === AUTH_ERROR && (
-            <Grid item xs={12} sm={12} sx={{margin:"1rem 0.5rem"}}>
-              <span className="text-xs text-red-600 font-semibold p-2 bg-red-100">
-                &#9432; {globalError.message}
-              </span>
+            <Grid item xs={12} sm={12} sx={{ margin: "1rem 0.5rem" }}>
+              <span className="text-xs text-red-600 font-semibold p-2 bg-red-100">&#9432; {globalError.message}</span>
             </Grid>
           )}
           {/* SignIn or SignUp */}
@@ -277,11 +248,11 @@ export default function Auth() {
             </Button>
             <div
               id="g_id_onload"
-              data-client_id="342038805529-4qthghi3k8tda9cn16k0bj946bm3rpho.apps.googleusercontent.com"
+              data-client_id="593387560130-t7sci6qnu6d2r0gnoqkb4n7vtsiosf4k.apps.googleusercontent.com"
               data-context="signin"
               data-ux_mode="popup"
-              data-auto_prompt="false"
               data-callback="handleCredentialResponse"
+              data-auto_prompt="false"
             ></div>
 
             <div
@@ -296,7 +267,7 @@ export default function Auth() {
           </div>
 
           {/* Already have an account? | Don't have an account? */}
-          <Grid container justifyContent="center" style={{marginTop :"1rem"}}>
+          <Grid container justifyContent="center" style={{ marginTop: "1rem" }}>
             <Grid item>
               <Button
                 onClick={() => {
@@ -304,9 +275,7 @@ export default function Auth() {
                   dispatch({ type: CLEAR_AUTH_ERROR });
                 }}
               >
-                {isSignUp
-                  ? "Already have an account? Sign In"
-                  : "Don't have an account? Sign Up"}
+                {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
               </Button>
             </Grid>
           </Grid>
