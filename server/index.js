@@ -11,7 +11,7 @@ const DB_CONNECTION_URL = process.env.DB_CONNECTION_URL;
 
 const logger = (req, res, next) => {
   const time = new Date(Date.now());
-  console.log(`${time.toLocaleString("en-US", "Asia/Kolkata")}  ${req.method}  ${req.path}`);
+  console.log(`${time.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })}  ${req.method}  ${req.path}`);
   next();
 };
 
