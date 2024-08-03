@@ -3,27 +3,17 @@ import {
   VisibilityOff as VisibilityOffIcon,
   LockOutlined as LockIcon,
 } from "@mui/icons-material/";
-import Input from "./Input";
+import Input from "../components/Input";
 
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { signUp, signIn, googleSignIn } from "../../actions/auth";
+import { signUp, signIn, googleSignIn } from "../actions/auth";
 import { useSelector } from "react-redux";
-import validate from "./validate";
-import {
-  Avatar,
-  Paper,
-  Grid,
-  Typography,
-  Container,
-  Button,
-  TextField,
-  InputAdornment,
-  IconButton,
-  CircularProgress,
-} from "@mui/material";
-import { AUTH_ERROR, CLEAR_AUTH_ERROR } from "../../constants/actionTypes";
+import { userValidate } from "../utils/validate";
+import { Avatar, Grid, TextField, InputAdornment, IconButton } from "@mui/material";
+import { AUTH_ERROR, CLEAR_AUTH_ERROR, SOMETHING_WENT_WRONG } from "../constants/actionTypes";
+import SpinningLoader from "../components/SpinningLoader";
 
 export default function Auth() {
   const initialState = {
@@ -37,25 +27,12 @@ export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [formData, setFormData] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
-  const [firstNameError, setFirstNameError] = useState({
-    error: false,
-    helperText: "",
-  });
-  const [lastNameError, setLastNameError] = useState({
-    error: false,
-    helperText: "",
-  });
-  const [emailError, setEmailError] = useState({
-    error: false,
-    helperText: "",
-  });
-  const [passwordError, setPasswordError] = useState({
-    error: false,
-    helperText: "",
-  });
-  const [confirmPasswordError, setConfirmPasswordError] = useState({
-    error: false,
-    helperText: "",
+  const [validationError, setValidationError] = useState({
+    firstName: { error: false, helperText: "" },
+    lastName: { error: false, helperText: "" },
+    email: { error: false, helperText: "" },
+    password: { error: false, helperText: "" },
+    confirmPassword: { error: false, helperText: "" },
   });
 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -65,50 +42,30 @@ export default function Auth() {
   const navigate = useNavigate();
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
-    const opts = {
-      name,
-      value,
-      isSignUp,
-      emailError,
-      passwordError,
-      firstNameError,
-      lastNameError,
-      confirmPasswordError,
-      setEmailError,
-      setPasswordError,
-      setFirstNameError,
-      setLastNameError,
-      setConfirmPasswordError,
-    };
-    validate(opts);
-    setFormData({ ...formData, [event.target.name]: event.target.value });
+    try {
+      if (validationError[event.target.name].error) {
+        setValidationError((prev) => ({ ...prev, [event.target.name]: { error: false, helperText: "" } }));
+      }
+      setFormData({ ...formData, [event.target.name]: event.target.value });
+    } catch (error) {
+      dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
+      console.log("error: ", error);
+    }
   };
 
   const handleSubmit = (event) => {
-    event.preventDefault();
-    const opts = {
-      formData,
-      isSignUp,
-      emailError,
-      passwordError,
-      firstNameError,
-      lastNameError,
-      confirmPasswordError,
-      setEmailError,
-      setFormData,
-      setPasswordError,
-      setFirstNameError,
-      setLastNameError,
-      setConfirmPasswordError,
-    };
-    const validationError = validate(opts);
-    if (!validationError) {
+    try {
+      event.preventDefault();
+      dispatch({ type: CLEAR_AUTH_ERROR });
       if (isSignUp) {
-        dispatch(signUp(formData, navigate));
-      } else {
+        const validateErr = userValidate({ formData, isSignUp, setValidationError });
+        !validateErr && dispatch(signUp(formData, navigate));
+      } else if (!isSignUp) {
         dispatch(signIn(formData, navigate));
       }
+    } catch (error) {
+      dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
+      console.log("error: ", error);
     }
   };
 
@@ -128,20 +85,31 @@ export default function Auth() {
       document.body.removeChild(script);
     };
   }, []);
+
+  useEffect(() => {
+    dispatch({ type: CLEAR_AUTH_ERROR });
+  }, []);
+
   return (
-    <Container component="main" maxWidth="xs" sx={{ padding: "0px" }}>
-      <Paper className="flex flex-col mt-12 p-4 items-center min-w-[316px] " sx={{ boxShadow: "var(--sm-shadow)" }}>
+    <div className="tw-mt-12 tw-text-sm tw-w-full md:tw-w-[500px] tw-max-w-screen-sm tw-px-4 tw-mx-auto">
+      <div className="flex flex-col mt-12 p-4 items-center min-w-[316px] tw-border tw-rounded-md tw-p-4">
         <Avatar
-          className="m-4"
           sx={{
+            margin: "0 auto 1rem auto",
             backgroundColor: "rgb(112, 112, 255)",
           }}
         >
           <LockIcon />
         </Avatar>
-        <Typography variant="h5">{isSignUp ? "Sign Up" : "Sign In"} </Typography>
+        <h1 className="tw-text-2xl tw-font-semibold tw-text-center">{isSignUp ? "Sign Up" : "Sign In"} </h1>
+        {/*AUTH ERROR */}
+        {globalError.type === AUTH_ERROR && (
+          <div className="tw-px-2 tw-py-2">
+            <span className="tw-text-sm tw-text-red-600 tw-font-semibold "> {globalError.message}</span>
+          </div>
+        )}
         <form className="w-full mt-4" onSubmit={handleSubmit}>
-          <Grid container sx={{ margin: "0px", width: "100%" }}>
+          <div className="">
             {isSignUp && (
               <>
                 {/* First Name */}
@@ -151,7 +119,7 @@ export default function Auth() {
                   handleChange={handleChange}
                   autofocus
                   half
-                  error={firstNameError}
+                  error={validationError.firstName}
                 />
 
                 {/* Last Name */}
@@ -161,13 +129,13 @@ export default function Auth() {
                   handleChange={handleChange}
                   autofocus
                   half
-                  error={lastNameError}
+                  error={validationError.lastName}
                 />
               </>
             )}
 
             {/* Email */}
-            <Input name="email" label="Email Address" handleChange={handleChange} error={emailError} />
+            <Input name="email" label="Email Address" handleChange={handleChange} error={validationError.email} />
 
             {/* Password */}
             <Grid item xs={12} sm={12} sx={{ margin: ".5rem" }}>
@@ -176,8 +144,8 @@ export default function Auth() {
                 label="Password"
                 variant="outlined"
                 fullWidth
-                error={passwordError.error}
-                helperText={passwordError.helperText}
+                error={validationError.password.error}
+                helperText={validationError.password.helperText}
                 onChange={handleChange}
                 type={showPassword ? "text" : "password"}
                 InputProps={{
@@ -200,8 +168,8 @@ export default function Auth() {
                   label="Confirm Password"
                   variant="outlined"
                   fullWidth
-                  error={confirmPasswordError.error}
-                  helperText={confirmPasswordError.helperText}
+                  error={validationError.confirmPassword.error}
+                  helperText={validationError.confirmPassword.helperText}
                   onChange={handleChange}
                   type={showConfirmPassword ? "text" : "password"}
                   InputProps={{
@@ -218,34 +186,34 @@ export default function Auth() {
                 />
               </Grid>
             )}
-          </Grid>
-          {/*AUTH ERROR */}
-          {globalError.type === AUTH_ERROR && (
-            <Grid item xs={12} sm={12} sx={{ margin: "1rem 0.5rem" }}>
-              <span className="text-xs text-red-600 font-semibold p-2 bg-red-100">&#9432; {globalError.message}</span>
-            </Grid>
-          )}
-          {/* SignIn or SignUp */}
-          <div
-            className="flex flex-col justify-center items-center mt-4
- "
-          >
-            <Button
-              sx={{ marginBottom: "1rem", backgroundColor: "dodgerblue" }}
-              type="submit"
-              variant="contained"
-              className="h-[44px] w-[214px]"
-              fullwidth="true"
-              color="primary"
-            >
-              {isLoading ? (
-                <CircularProgress style={{ width: "20px", height: "20px" }} />
-              ) : isSignUp ? (
-                "Sign Up"
-              ) : (
-                "Sign In"
-              )}
-            </Button>
+          </div>
+
+          <div className="tw-flex tw-flex-col tw-items-center tw-py-4 tw-px-2  tw-w-full">
+            <div className="tw-flex tw-w-full tw-space-x-4 tw-mb-4 tw-justify-between tw-items-center">
+              {/* Already have an account? | Don't have an account? */}
+              <div>
+                {isSignUp ? "Already have an account? " : "Don't have an account? "}
+                <span
+                  onClick={() => {
+                    setIsSignUp((prev) => !prev);
+                    dispatch({ type: CLEAR_AUTH_ERROR });
+                  }}
+                  className="tw-text-blue-500 tw-cursor-pointer hover:tw-underline"
+                >
+                  {isSignUp ? "Sign In" : "Sign Up"}
+                </span>
+              </div>
+
+              {/* SignIn or SignUp */}
+              <button
+                type="submit"
+                className="tw-bg-blue-500 tw-min-w-[98px] tw-px-6 tw-py-2 tw-rounded-full tw-text-white tw-flex tw-justify-center tw-items-center"
+              >
+                {isLoading ? <SpinningLoader size={20} /> : isSignUp ? "Sign Up" : "Sign In"}
+              </button>
+            </div>
+
+            {/* Google SignIn */}
             <div
               id="g_id_onload"
               data-client_id="593387560130-t7sci6qnu6d2r0gnoqkb4n7vtsiosf4k.apps.googleusercontent.com"
@@ -265,22 +233,8 @@ export default function Auth() {
               data-logo_alignment="left"
             ></div>
           </div>
-
-          {/* Already have an account? | Don't have an account? */}
-          <Grid container justifyContent="center" style={{ marginTop: "1rem" }}>
-            <Grid item>
-              <Button
-                onClick={() => {
-                  setIsSignUp((prevIsSignUp) => !prevIsSignUp);
-                  dispatch({ type: CLEAR_AUTH_ERROR });
-                }}
-              >
-                {isSignUp ? "Already have an account? Sign In" : "Don't have an account? Sign Up"}
-              </Button>
-            </Grid>
-          </Grid>
         </form>
-      </Paper>
-    </Container>
+      </div>
+    </div>
   );
 }

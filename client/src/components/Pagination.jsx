@@ -2,7 +2,7 @@ import { Pagination, PaginationItem } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getPosts } from "../../actions/posts";
+import { getPosts } from "../actions/posts";
 
 export default function Paginate({ page }) {
   const dispatch = useDispatch();

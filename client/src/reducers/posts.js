@@ -10,14 +10,15 @@ import {
   UPDATE_CURRENT_POST,
   EDIT_CURRENT_POST,
   CLEAR_EDIT_POST,
+  GET_RECOMMENDED_POSTS,
 } from "../constants/actionTypes";
 const defaultPostsObj = {
   posts: [],
+  recommendedPost: [],
   currentPage: 1,
   noOfPages: 1,
   isLoading: false,
   currentPost: null,
-  editPost: null,
 };
 export default function reducer(postsObj = defaultPostsObj, action) {
   switch (action.type) {
@@ -47,9 +48,7 @@ export default function reducer(postsObj = defaultPostsObj, action) {
     case UPDATE:
       return {
         ...postsObj,
-        posts: postsObj.posts.map((post) =>
-          post._id === action.payload._id ? (post = action.payload) : post
-        ),
+        posts: postsObj.posts.map((post) => (post._id === action.payload._id ? (post = action.payload) : post)),
       };
 
     case UPDATE_CURRENT_POST:
@@ -81,6 +80,9 @@ export default function reducer(postsObj = defaultPostsObj, action) {
 
     case STOP_LOADING:
       return { ...postsObj, isLoading: false };
+
+    case GET_RECOMMENDED_POSTS:
+      return { ...postsObj, recommendedPosts: action.payload };
 
     default:
       return postsObj;

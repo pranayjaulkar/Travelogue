@@ -1,7 +1,9 @@
 const User = require("../models/user.js");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const dotenv = require("dotenv");
+
+const JWT_SECRET = process.env.JWT_SECRET || "jwtsecret";
+const saltRounds = process.env.SALT_ROUNDS || 10;
 
 const createTokens = (user) => {
   //create accesstoken
@@ -45,12 +47,6 @@ const configureUser = (user, accessToken) => {
   });
 };
 
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config();
-}
-
-const JWT_SECRET = process.env.JWT_SECRET || "jwtsecret";
-const saltRounds = process.env.SALT_ROUNDS || 10;
 
 module.exports.signIn = async (req, res) => {
   let userData = req.body;
@@ -95,7 +91,7 @@ module.exports.signIn = async (req, res) => {
     else {
       const match = await bcrypt.compare(userData.password, user.password);
       if (!match) {
-        return res.status(403).json({ error: "INVALID_EMAIL_OR_PASSWORD" });
+        return res.status(400).json({ error: "INCORRECT_EMAIL_OR_PASSWORD" });
       }
       const { accessToken, refreshToken } = createTokens(user);
       //create cookie to embed refresh token

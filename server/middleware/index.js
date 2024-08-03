@@ -1,7 +1,3 @@
-const dotenv = require("dotenv");
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config();
-}
 const jwt = require("jsonwebtoken");
 const postMessage = require("../models/postMessage");
 const mongoose = require("mongoose");

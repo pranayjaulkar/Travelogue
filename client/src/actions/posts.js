@@ -12,25 +12,19 @@ import {
   NO_POSTS_FOUND,
   NO_POST_FOUND,
   UPDATE_CURRENT_POST,
+  GET_RECOMMENDED_POSTS,
 } from "../constants/actionTypes";
 import toast from "react-hot-toast";
 export const getPost = (_id) => async (dispatch) => {
   try {
     dispatch({ type: START_LOADING });
     const res = await api.getPost(_id);
-    if (res.data) {
-      const res2 = await api.getPostsBySearch({ tags: res.data.tags });
-      if (!res2.data.length) {
-        dispatch({ type: NO_POSTS_FOUND });
-      } else {
-        dispatch({ type: FETCH_BY_SEARCH, payload: res2.data });
-      }
-    }
     dispatch({ type: FETCH_POST, payload: res.data });
     dispatch({ type: STOP_LOADING });
   } catch (error) {
+    console.log("error: ", error);
     const res = error.response;
-    if (res && res.status === 404) {
+    if (res?.data.error === NO_POST_FOUND) {
       dispatch({ type: NO_POST_FOUND });
     } else {
       dispatch({ type: STOP_LOADING });
@@ -46,6 +40,7 @@ export const getPost = (_id) => async (dispatch) => {
     }
   }
 };
+
 export const getPosts = (page) => async (dispatch) => {
   try {
     //Display Loading icon
@@ -55,6 +50,7 @@ export const getPosts = (page) => async (dispatch) => {
     // stop displaying Loading icon
     dispatch({ type: STOP_LOADING });
   } catch (error) {
+    console.log("error: ", error);
     dispatch({ type: STOP_LOADING });
     dispatch({
       type: SOMETHING_WENT_WRONG,
@@ -80,15 +76,12 @@ export const getPostsBySearch = (searchQuery, navigate) => async (dispatch) => {
     }
     //Stop displaying Loading icon
     dispatch({ type: STOP_LOADING });
-    navigate(`/posts/search?q=${searchQuery.query}&tags=${searchQuery.tags}`);
+    navigate && navigate(`/posts/search?q=${searchQuery.query}&tags=${searchQuery.tags}`);
   } catch (error) {
+    console.log("error: ", error);
     const res = error.response;
     dispatch({ type: STOP_LOADING });
-    if (
-      res &&
-      res.status === 400 &&
-      res.data.error === "EMPTY_QUERY_PARAMETERS"
-    ) {
+    if (res && res.status === 400 && res.data.error === "EMPTY_QUERY_PARAMETERS") {
       dispatch({ type: NO_POST_FOUND });
     } else {
       dispatch({
@@ -104,15 +97,36 @@ export const getPostsBySearch = (searchQuery, navigate) => async (dispatch) => {
   }
 };
 
+export const getRecommendedPosts = (tags) => async (dispatch) => {
+  try {
+    const res = await api.getPostsBySearch({ tags });
+    //if res.data(posts array) array is empty then dispatch NO_POSTS_FOUND else dispatch FETCH_BY_SEARCH
+    if (res.data.length) {
+      dispatch({ type: GET_RECOMMENDED_POSTS, payload: res.data });
+    }
+  } catch (error) {
+    console.log("error: ", error);
+    dispatch({
+      type: SOMETHING_WENT_WRONG,
+      payload: {
+        type: SOMETHING_WENT_WRONG,
+        statusCode: null,
+        error,
+        message: error.message,
+      },
+    });
+  }
+};
+
 export const createPost =
-  ({ imagesExists, imgData, accessToken, post, navigate }) =>
+  ({ imageData, accessToken, post, navigate }) =>
   async (dispatch) => {
     try {
       //Display Loading icon
       dispatch({ type: START_LOADING });
       //Upload images to cloudinary and get response as image links array
-      if (imagesExists) {
-        const imgRes = await api.imageUpload(imgData, accessToken);
+      if (imageData.has("images")) {
+        const imgRes = await api.imageUpload(imageData, accessToken);
         //if image links array(imgres.data) is empty dispatch SOMETHING_WENT_WRONG else add image links array to post to upload to database
         if (!imgRes.data.length) {
           dispatch({
@@ -138,17 +152,18 @@ export const createPost =
       dispatch({ type: STOP_LOADING });
       toast.success("Post Created Successfully");
       //navigate to the post
-      navigate(`/posts/${res.data._id}`);
+      navigate && navigate(`/posts/${res.data._id}`);
     } catch (error) {
+      console.log("error: ", error);
+      console.log("error: ", error);
       const res = error.response;
       dispatch({ type: STOP_LOADING });
       if (
         res &&
         res.status === 403 &&
-        (res.data.error === "ACCESS_TOKEN_NOT_FOUND" ||
-          res.data.error === "TOKEN_EXPIRED")
+        (res.data.error === "ACCESS_TOKEN_NOT_FOUND" || res.data.error === "TOKEN_EXPIRED")
       ) {
-        navigate("/auth");
+        navigate && navigate("/auth");
       } else {
         dispatch({
           type: SOMETHING_WENT_WRONG,
@@ -164,13 +179,13 @@ export const createPost =
   };
 
 export const updatePost =
-  ({ updateCurrentPost, imagesExists, imgData, accessToken, post, navigate }) =>
+  ({ updateCurrentPost, imagesExists, imageData, accessToken, post, navigate }) =>
   async (dispatch) => {
     try {
       dispatch({ type: START_LOADING });
       //Upload images to cloudinary and get response as image links array
       if (imagesExists) {
-        const imgRes = await api.imageUpload(imgData, accessToken);
+        const imgRes = await api.imageUpload(imageData, accessToken);
         if (!imgRes.data) {
           dispatch({
             type: SOMETHING_WENT_WRONG,
@@ -200,18 +215,18 @@ export const updatePost =
       }
       dispatch({ type: STOP_LOADING });
       toast.success("Post updated successfully");
-      navigate(`/posts/${res.data._id}`);
+      navigate && navigate(`/posts/${res.data._id}`);
     } catch (error) {
+      console.log("error: ", error);
       const res = error.response;
       dispatch({ type: STOP_LOADING });
       //if accesstoken not found or refresh token not found
       if (
         res &&
         res.status === 403 &&
-        (res.data.error === "ACCESS_TOKEN_NOT_FOUND" ||
-          res.data.error === "TOKEN_EXPIRED")
+        (res.data.error === "ACCESS_TOKEN_NOT_FOUND" || res.data.error === "TOKEN_EXPIRED")
       ) {
-        navigate("/auth");
+        navigate && navigate("/auth");
       } else {
         dispatch({
           type: SOMETHING_WENT_WRONG,
@@ -232,8 +247,9 @@ export const deletePost = (_id, navigate, accessToken) => async (dispatch) => {
     const res = await api.deletePost(_id, accessToken);
     dispatch({ type: DELETE, payload: res.data._id });
     toast.success("Post deleted successfully");
-    navigate("/");
+    navigate && navigate("/");
   } catch (error) {
+    console.log("error: ", error);
     dispatch({ type: STOP_LOADING });
     dispatch({
       type: SOMETHING_WENT_WRONG,
@@ -256,6 +272,7 @@ export const likePost = (post, accessToken) => async (dispatch) => {
     //update like count state after database update
     dispatch({ type: UPDATE, payload: res.data });
   } catch (error) {
+    console.log("error: ", error);
     dispatch({
       type: SOMETHING_WENT_WRONG,
       payload: {

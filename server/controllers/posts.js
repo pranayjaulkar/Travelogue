@@ -6,8 +6,7 @@ const { cloudinary } = require("../cloudinaryConfig");
 
 module.exports.getPost = async (req, res, next) => {
   const { _id } = req.params;
-  if (!mongoose.Types.ObjectId.isValid(_id))
-    throw new customError("INVALID_ID", 400);
+  if (!mongoose.Types.ObjectId.isValid(_id)) return res.status(400).json({ error: "INVALID_ID" });
   const post = await postMessage
     .findOne({ _id })
     .populate("owner", "-password")
@@ -15,7 +14,8 @@ module.exports.getPost = async (req, res, next) => {
       path: "comments",
       populate: { path: "owner", select: "-password" },
     });
-  res.status(200).json(post);
+  if (!post) return res.status(404).json({ error: "NO_POST_FOUND" });
+  return res.status(200).json(post);
 };
 
 module.exports.getPosts = async (req, res, next) => {

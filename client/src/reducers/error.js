@@ -18,7 +18,6 @@ export default function errorReducer(error = defaultError, action) {
     return { defaultError };
   }
   if (action.type === SOMETHING_WENT_WRONG) {
-    console.log("action: ", action);
     return { ...action.payload };
   } else {
     return error;

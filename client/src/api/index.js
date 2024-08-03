@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL:
-    process.env.NODE_ENV === "production" ? "/api" : "http://localhost:5000/api",
+  baseURL: "http://localhost:5000/api",
   withCredentials: true,
 });
 
@@ -21,9 +20,7 @@ export const getPosts = (page) =>
 export const getPostsBySearch = (searchQuery) =>
   API({
     method: "get",
-    url: `/posts/search?q=${searchQuery.query || "none"}&tags=${
-      searchQuery.tags
-    }`,
+    url: `/posts/search?q=${searchQuery.query || "none"}&tags=${searchQuery.tags}`,
   });
 
 export const imageUpload = (formData, accessToken) =>

@@ -3,14 +3,10 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const postRoutes = require("./routes/posts.js");
 const userRoutes = require("./routes/users.js");
-const dotenv = require("dotenv");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const customError = require("./utils/error.js");
 
-if (process.env.NODE_ENV !== "production") {
-  dotenv.config();
-}
 const app = express();
 const DB_CONNECTION_URL =
   process.env.DB_CONNECTION_URL || "mongodb://127.0.0.1:27017/memories";
