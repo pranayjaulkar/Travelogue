@@ -7,12 +7,11 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const customError = require("./utils/error.js");
 const PORT = process.env.PORT || 5000;
-const SERVER_HOST_ADDRESS = process.env.SERVER_HOST_ADDRESS;
-const DB_CONNECTION_URL = process.env.DB_CONNECTION_URL || "mongodb://127.0.0.1:27017/memories";
+const DB_CONNECTION_URL = process.env.DB_CONNECTION_URL;
 
 const logger = (req, res, next) => {
-  const time = new Date(Date.now())
-  console.log(`${time.toUTCString()}  ${req.method}  ${req.path}`);
+  const time = new Date(Date.now());
+  console.log(`${time.toLocaleString("en-US", "Asia/Kolkata")}  ${req.method}  ${req.path}`);
   next();
 };
 
@@ -20,16 +19,11 @@ const app = express();
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist/")));
-  app.use(
-    cors({
-      origin: SERVER_HOST_ADDRESS,
-      credentials: true,
-    })
-  );
+  app.use(cors({ credentials: true }));
 } else {
   app.use(
     cors({
-      origin: ["http://localhost:3000", "http://localhost:5000"],
+      origin: "http://localhost:3000",
       credentials: true,
     })
   );
