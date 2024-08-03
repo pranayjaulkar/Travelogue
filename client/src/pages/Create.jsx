@@ -51,7 +51,7 @@ export default function Create() {
       });
     } catch (error) {
       dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
-      console.log("error: ", error);
+      // console.log("error: ", error);
     }
   };
 
@@ -92,7 +92,7 @@ export default function Create() {
       }
     } catch (error) {
       dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
-      console.log("error: ", error);
+      // console.log("error: ", error);
     }
   };
 

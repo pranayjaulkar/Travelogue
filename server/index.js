@@ -6,12 +6,18 @@ const userRoutes = require("./routes/users.js");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const customError = require("./utils/error.js");
-
-const app = express();
-const DB_CONNECTION_URL =
-  process.env.DB_CONNECTION_URL || "mongodb://127.0.0.1:27017/memories";
 const PORT = process.env.PORT || 5000;
 const SERVER_HOST_ADDRESS = process.env.SERVER_HOST_ADDRESS;
+const DB_CONNECTION_URL = process.env.DB_CONNECTION_URL || "mongodb://127.0.0.1:27017/memories";
+
+const logger = (req, res, next) => {
+  const time = new Date(Date.now())
+  console.log(`${time.toUTCString()}  ${req.method}  ${req.path}`);
+  next();
+};
+
+const app = express();
+
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist/")));
   app.use(
@@ -28,11 +34,14 @@ if (process.env.NODE_ENV === "production") {
     })
   );
 }
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(logger);
 app.use("/api/posts", postRoutes);
 app.use("/api/users", userRoutes);
+
 mongoose
   .connect(DB_CONNECTION_URL)
   .then(() => console.log("Database Connected"))

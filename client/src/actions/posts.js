@@ -22,7 +22,7 @@ export const getPost = (_id) => async (dispatch) => {
     dispatch({ type: FETCH_POST, payload: res.data });
     dispatch({ type: STOP_LOADING });
   } catch (error) {
-    console.log("error: ", error);
+    // console.log("error: ", error);
     const res = error.response;
     if (res?.data.error === NO_POST_FOUND) {
       dispatch({ type: NO_POST_FOUND });
@@ -50,7 +50,7 @@ export const getPosts = (page) => async (dispatch) => {
     // stop displaying Loading icon
     dispatch({ type: STOP_LOADING });
   } catch (error) {
-    console.log("error: ", error);
+    // console.log("error: ", error);
     dispatch({ type: STOP_LOADING });
     dispatch({
       type: SOMETHING_WENT_WRONG,
@@ -78,7 +78,7 @@ export const getPostsBySearch = (searchQuery, navigate) => async (dispatch) => {
     dispatch({ type: STOP_LOADING });
     navigate && navigate(`/posts/search?q=${searchQuery.query}&tags=${searchQuery.tags}`);
   } catch (error) {
-    console.log("error: ", error);
+    // console.log("error: ", error);
     const res = error.response;
     dispatch({ type: STOP_LOADING });
     if (res && res.status === 400 && res.data.error === "EMPTY_QUERY_PARAMETERS") {
@@ -105,7 +105,7 @@ export const getRecommendedPosts = (tags) => async (dispatch) => {
       dispatch({ type: GET_RECOMMENDED_POSTS, payload: res.data });
     }
   } catch (error) {
-    console.log("error: ", error);
+    // console.log("error: ", error);
     dispatch({
       type: SOMETHING_WENT_WRONG,
       payload: {
@@ -154,8 +154,7 @@ export const createPost =
       //navigate to the post
       navigate && navigate(`/posts/${res.data._id}`);
     } catch (error) {
-      console.log("error: ", error);
-      console.log("error: ", error);
+      // console.log("error: ", error);
       const res = error.response;
       dispatch({ type: STOP_LOADING });
       if (
@@ -217,7 +216,7 @@ export const updatePost =
       toast.success("Post updated successfully");
       navigate && navigate(`/posts/${res.data._id}`);
     } catch (error) {
-      console.log("error: ", error);
+      // console.log("error: ", error);
       const res = error.response;
       dispatch({ type: STOP_LOADING });
       //if accesstoken not found or refresh token not found
@@ -249,7 +248,7 @@ export const deletePost = (_id, navigate, accessToken) => async (dispatch) => {
     toast.success("Post deleted successfully");
     navigate && navigate("/");
   } catch (error) {
-    console.log("error: ", error);
+    // console.log("error: ", error);
     dispatch({ type: STOP_LOADING });
     dispatch({
       type: SOMETHING_WENT_WRONG,
@@ -272,7 +271,7 @@ export const likePost = (post, accessToken) => async (dispatch) => {
     //update like count state after database update
     dispatch({ type: UPDATE, payload: res.data });
   } catch (error) {
-    console.log("error: ", error);
+    // console.log("error: ", error);
     dispatch({
       type: SOMETHING_WENT_WRONG,
       payload: {

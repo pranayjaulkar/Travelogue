@@ -49,7 +49,7 @@ export default function Auth() {
       setFormData({ ...formData, [event.target.name]: event.target.value });
     } catch (error) {
       dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
-      console.log("error: ", error);
+      // console.log("error: ", error);
     }
   };
 
@@ -65,7 +65,7 @@ export default function Auth() {
       }
     } catch (error) {
       dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
-      console.log("error: ", error);
+      // console.log("error: ", error);
     }
   };
 

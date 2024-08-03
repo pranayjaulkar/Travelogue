@@ -120,7 +120,7 @@ export const signUp = (formData, navigate) => async (dispatch) => {
 
     navigate("/");
   } catch (error) {
-    console.log("error: ", error);
+    // console.log("error: ", error);
     dispatch({ type: STOP_LOADING });
     if (error?.response?.data?.error === "USER_ALREADY_EXISTS") {
       dispatch({
