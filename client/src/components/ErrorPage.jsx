@@ -1,18 +1,20 @@
-export default function ErrorPage({ error }) {
-  let message = null;
+import { useSelector } from "react-redux";
+import { AUTH_ERROR } from "../constants/actionTypes";
 
-  if (error?.statusCode === 404) {
-    message = <img src="https://assets.codepen.io/1538474/404.svg" className="logo-404" />;
-  } else if (error?.statusCode === 500 || error?.error?.response?.status === 500) {
-    message = "Internal Server Error";
+export default function ErrorPage() {
+  const error = useSelector((state) => state.error);
+  let errorTitle = null;
+  if (error?.statusCode === 500 || error?.error?.response?.status === 500) {
+    errorTitle = "Internal Server Error";
   } else {
-    message = (
+    errorTitle = (
       <>
         Oops!! <br /> Something went wrong
       </>
     );
   }
-
+  // if there is no error or error type is Auth Error return null
+  if (!error.error || error.type === AUTH_ERROR) return null;
   return (
     <div
       className="tw-fixed  tw-w-[100vw] tw-h-[100vh] tw-z-[99999] tw-m-0 tw-bg-fixed tw-overflow-hidden"
@@ -24,8 +26,8 @@ export default function ErrorPage({ error }) {
     >
       <div className="mars"></div>
       <div className="tw-mt-72 tw-flex tw-items-center tw-flex-col">
-        <p className="error title tw-mb-8">{message}</p>
-        <p className="subtitle">{error.message}</p>
+        <p className="error title tw-mb-8">{errorTitle}</p>
+        <p className="subtitle md:tw-text-lg">{error.message || "An unexpected error has ocurred."}</p>
         <div className="tw-flex tw-justify-center">
           <a className="btn-back" href="/">
             Back to Home page
