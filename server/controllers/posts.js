@@ -1,7 +1,6 @@
 const postMessage = require("../models/postMessage.js");
 const User = require("../models/user.js");
 const mongoose = require("mongoose");
-const customError = require("../utils/error.js");
 const { cloudinary } = require("../cloudinaryConfig");
 
 module.exports.getPost = async (req, res, next) => {
@@ -58,10 +57,10 @@ module.exports.getPostsBySearch = async (req, res, next) => {
   } else {
     tags = [];
   }
-  const title = new RegExp(q, "i");
+  const title = q !== "none" ? new RegExp(q, "i") : "";
   const posts = await postMessage
     .find({
-      $or: [{ title }, { tags: { $in: tags } }],
+      $or: [{ title }, { message: title }, { tags: { $in: tags } }],
     })
     .populate("owner", "-password")
     .populate({

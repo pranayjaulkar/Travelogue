@@ -10,11 +10,9 @@ import {
   UPDATE_CURRENT_POST,
   EDIT_CURRENT_POST,
   CLEAR_EDIT_POST,
-  GET_RECOMMENDED_POSTS,
 } from "../constants/actionTypes";
 const defaultPostsObj = {
   posts: [],
-  recommendedPost: [],
   currentPage: 1,
   noOfPages: 1,
   isLoading: false,
@@ -60,13 +58,13 @@ export default function reducer(postsObj = defaultPostsObj, action) {
     case EDIT_CURRENT_POST:
       return {
         ...postsObj,
-        editPost: action.payload,
+        currentPost: action.payload,
       };
 
     case CLEAR_EDIT_POST:
       return {
         ...postsObj,
-        editPost: null,
+        currentPost: null,
       };
 
     case DELETE:
@@ -80,9 +78,6 @@ export default function reducer(postsObj = defaultPostsObj, action) {
 
     case STOP_LOADING:
       return { ...postsObj, isLoading: false };
-
-    case GET_RECOMMENDED_POSTS:
-      return { ...postsObj, recommendedPosts: action.payload };
 
     default:
       return postsObj;

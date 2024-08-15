@@ -26,7 +26,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon --env-file=.env index.js",
-    "test": "cd ../client && npm run build && cd ../server && nodemon --env-file=.env index.js"
+    "prod": "nodemon --env-file=.env --env-file=.env.production index.js"
   },
   "author": "",
   "license": "ISC",

@@ -1,25 +1,23 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { refreshAccessToken, logout } from "../actions/auth";
+import toast from "react-hot-toast";
+
+const SmallDevicesSidebar = lazy(() => import("./SmallDevicesSidebar"));
+const SearchBar = lazy(() => import("./SearchBar"));
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import MenuIcon from "@mui/icons-material/Menu";
-import SmallDevicesSidebar from "./SmallDevicesSidebar";
-import { TextField } from "@mui/material";
-import { getPostsBySearch } from "../actions/posts";
-import toast from "react-hot-toast";
-import { MuiChipsInput } from "mui-chips-input";
 
 export default function Navbar() {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [tags, setTags] = useState([]);
-  const [search, setSearch] = useState("");
   const [toggleMenu, setToggleMenu] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const logoutHandler = () => {
     setToggleMenu(false);
@@ -32,22 +30,14 @@ export default function Navbar() {
     setToggleMenu((prev) => !prev);
   };
 
-  const handleSearch = () => {
-    if (search.trim() || tags.length) {
-      dispatch(getPostsBySearch({ query: search.trim(), tags }, navigate));
-      navigate(`/posts/search?q=${search.trim() || "none"}&tags=${tags.join(",")}`);
-    }
-  };
-
-  const handleEnterKeyPress = (event) => {
-    if (event.keyCode === 13 && search.trim()) {
-      dispatch(getPostsBySearch({ query: search.trim(), tags }, navigate));
-    }
-  };
-
   useEffect(() => {
     dispatch(refreshAccessToken(navigate));
   }, [dispatch, navigate]);
+
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
   return (
     <div
       style={{
@@ -87,13 +77,15 @@ export default function Navbar() {
               <MenuIcon />
             </div>
             {toggleMenu ? (
-              <SmallDevicesSidebar
-                setToggleMenu={setToggleMenu}
-                user={user}
-                toggleMenu={toggleMenu}
-                handleToggleMenu={handleToggleMenu}
-                logoutHandler={logoutHandler}
-              />
+              <Suspense fallback="loading...">
+                <SmallDevicesSidebar
+                  setToggleMenu={setToggleMenu}
+                  user={user}
+                  toggleMenu={toggleMenu}
+                  handleToggleMenu={handleToggleMenu}
+                  logoutHandler={logoutHandler}
+                />
+              </Suspense>
             ) : (
               <div className="tw-hidden lg:tw-flex tw-items-center tw-space-x-32">
                 <div className="tw-flex tw-items-center tw-space-x-8 ">
@@ -104,15 +96,15 @@ export default function Navbar() {
                     <div className="tw-w-[25px] tw-h-full tw-overflow-hidden tw-flex tw-items-center">
                       <SearchIcon
                         style={{
-                          transform: `translateX(${showSearchBar ? -25 : 0}px)`,
-                          opacity: showSearchBar ? 0 : 100,
+                          transform: `translateX(${showSearchBar && !loading ? -25 : 0}px)`,
+                          opacity: showSearchBar && !loading ? 0 : 100,
                           transition: "transform .5s, opacity .2s",
                         }}
                       />
                       <CloseIcon
                         style={{
-                          transform: `translateX(${showSearchBar ? -25 : 0}px)`,
-                          opacity: showSearchBar ? 100 : 0,
+                          transform: `translateX(${showSearchBar && !loading ? -25 : 0}px)`,
+                          opacity: showSearchBar && !loading ? 100 : 0,
                           transition: "transform .5s, opacity .2s",
                         }}
                       />
@@ -140,38 +132,8 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-      {/* Search Section */}
-      <div
-        style={{
-          transform: showSearchBar ? "translateY(8vh)" : "",
-          transition: "all .5s",
-          height: "8vh",
-        }}
-        className="tw-absolute tw-top-0 tw-w-full tw-h-full tw-space-y-12"
-      >
-        <div className="tw-flex tw-w-full tw-h-full tw-items-center tw-justify-center tw-space-x-4">
-          <TextField
-            name="search"
-            label="Search Memories"
-            value={search}
-            size="small"
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyUp={handleEnterKeyPress}
-            variant="outlined"
-          />
-          <MuiChipsInput
-            style={{ marginTop: "0px", minWidth: "200px", maxWidth: "400px" }}
-            label="Search Using Tags"
-            size="small"
-            value={tags}
-            onChange={(tag) => setTags(tag)}
-          />
-
-          <button className="tw-px-6 tw-py-2 tw-rounded-md tw-text-white tw-bg-blue-500" onClick={handleSearch}>
-            Search
-          </button>
-        </div>
-      </div>
+      {/* Search Bar */}
+      <SearchBar showSearchBar={showSearchBar} />
     </div>
   );
 }

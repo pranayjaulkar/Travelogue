@@ -95,7 +95,7 @@ export const googleSignIn = (data) => async (dispatch) => {
       dispatch({ type: SIGN_IN, payload: user });
     }
   } catch (error) {
-    // console.log('error: ', error);
+   import.meta.env.DEV &&  console.log('error: ', error);
     dispatch({ type: STOP_LOADING });
     dispatch({
       type: SOMETHING_WENT_WRONG,
@@ -120,7 +120,7 @@ export const signUp = (formData, navigate) => async (dispatch) => {
 
     navigate("/");
   } catch (error) {
-    // console.log("error: ", error);
+    import.meta.env.DEV &&  console.log('error: ', error);
     dispatch({ type: STOP_LOADING });
     if (error?.response?.data?.error === "USER_ALREADY_EXISTS") {
       dispatch({
@@ -152,7 +152,7 @@ export const logout = () => async (dispatch) => {
       dispatch({ type: LOGOUT });
     }
   } catch (error) {
-    // console.log('error: ', error);
+   import.meta.env.DEV &&  console.log('error: ', error);
     dispatch({
       type: SOMETHING_WENT_WRONG,
       payload: {
@@ -171,7 +171,7 @@ export const refreshAccessToken = (navigate) => async (dispatch) => {
       dispatch({ type: SIGN_IN, payload: res.data });
     }
   } catch (error) {
-    // console.log('error: ', error);
+   import.meta.env.DEV &&  console.log('error: ', error);
     if (error?.response?.data?.error === "TOKEN_NOT_FOUND") {
       //do nothing
     } else if (

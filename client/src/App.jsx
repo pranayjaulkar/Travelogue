@@ -8,13 +8,13 @@ import Create from "./pages/Create";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import ErrorPageProvider from "./providers/ErrorPageProvider";
+import ErrorPage from "./components/ErrorPage";
 
 function App() {
   return (
     <BrowserRouter>
       <Toaster />
-      <ErrorPageProvider />
+      <ErrorPage />
       <Navbar />
       <Routes>
         <Route exact path="/" element={<Home />}></Route>

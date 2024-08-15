@@ -5,16 +5,15 @@ import { updatePost } from "../actions/posts";
 import { useNavigate } from "react-router-dom";
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 
-export default function CommentSection() {
+export default function CommentSection({ currentPost }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [comment, setComment] = useState("");
   const user = useSelector((state) => state.user);
-  const currentPost = useSelector((state) => state.posts.currentPost);
 
   const handleSubmit = () => {
     if (user) {
-      if (comment.trim()) {
+      if (comment.trim() && currentPost) {
         const post = {
           ...currentPost,
           comments: [...currentPost.comments, { text: comment.trim(), owner: user._id }],
@@ -34,6 +33,7 @@ export default function CommentSection() {
       navigate("/auth");
     }
   };
+
   return (
     <div className="tw-flex-wrap tw-py-4 tw-px-2 tw-text-gray-800">
       <div className="tw-space-y-2">
@@ -57,18 +57,19 @@ export default function CommentSection() {
         </button>
       </div>
       <div className="tw-mt-8 tw-space-y-2">
-        <span className="tw-font-semibold">{currentPost.comments.length} Comments</span>
+        {!!currentPost?.comments.length && (
+          <span className="tw-font-semibold">{currentPost?.comments.length} Comments</span>
+        )}
         <div className="tw-flex tw-flex-col tw-space-y-4">
-          {currentPost.comments &&
-            currentPost.comments.map((comment) => (
-              <div key={comment._id} className="tw-flex tw-flex-col">
-                <div className="tw-flex tw-items-center tw-space-x-2">
-                  <AccountCircleSharpIcon />
-                  <span className="tw-font-semibold">{comment.owner.email}</span>
-                </div>
-                <span className="tw-ml-4 tw-break-words tw-text-gray-600">{comment.text}</span>
+          {currentPost?.comments.map((comment) => (
+            <div key={comment._id} className="tw-flex tw-flex-col">
+              <div className="tw-flex tw-items-center tw-space-x-2">
+                <AccountCircleSharpIcon />
+                <span className="tw-font-semibold">{comment.owner?.email}</span>
               </div>
-            ))}
+              <span className="tw-ml-4 tw-break-words tw-text-gray-600">{comment.text}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>

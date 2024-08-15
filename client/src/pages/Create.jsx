@@ -3,8 +3,10 @@ import { TextField, Button } from "@mui/material";
 import SpinningLoader from "../components/SpinningLoader";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { updatePost, createPost } from "../actions/posts";
+import { getPost } from "../api";
+
 import { MuiChipsInput } from "mui-chips-input";
-import { updatePost, createPost, getPost } from "../actions/posts";
 import { postValidate } from "../utils/validate";
 import { SOMETHING_WENT_WRONG } from "../constants/actionTypes";
 import { DeleteOutlined as Delete } from "@mui/icons-material/";
@@ -12,14 +14,12 @@ import { DeleteOutlined as Delete } from "@mui/icons-material/";
 export default function Create() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const editPost = useSelector((state) => state.posts.currentPost);
   const params = useParams();
-  const [edit, setEdit] = useState(false);
+  const { currentPost, isLoading } = useSelector((state) => state.posts);
   const user = useSelector((state) => state.user);
-  const isLoading = useSelector((state) => state.posts.isLoading);
-  const emptyFormData = { title: "", message: "", tags: [] };
+  const [edit, setEdit] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
-  const [formData, setFormData] = useState(emptyFormData);
+  const [formData, setFormData] = useState({ title: "", message: "", tags: [] });
   const [validationError, setValidationError] = useState({
     title: {
       error: false,
@@ -51,7 +51,7 @@ export default function Create() {
       });
     } catch (error) {
       dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
-      // console.log("error: ", error);
+      import.meta.env.DEV && console.log("error: ", error);
     }
   };
 
@@ -72,41 +72,56 @@ export default function Create() {
             imageData.append("images", image, image.name);
           }
         }
-        //if user is logged in and user is owner of post
-        // then update Post
-        const options = {
-          imageData,
-          post: { ...formData, owner: user._id },
-          accessToken: user.accessToken,
-          navigate,
-        };
-        if (formData?.owner?._id === user?._id) {
-          dispatch(updatePost(options));
-        }
-        // Create Post
-        if (user) {
-          dispatch(createPost(options));
+
+        if (edit && user && formData.owner?._id === user._id) {
+          dispatch(
+            updatePost({
+              imageData,
+              post: { ...formData },
+              accessToken: user.accessToken,
+              navigate,
+            })
+          );
         } else {
-          navigate("/auth");
+          dispatch(
+            createPost({
+              imageData,
+              post: { ...formData, owner: user._id },
+              accessToken: user.accessToken,
+              navigate,
+            })
+          );
         }
       }
     } catch (error) {
-      dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
-      // console.log("error: ", error);
+      dispatch({ type: SOMETHING_WENT_WRONG, payload: { error: error, message: error.message } });
+      import.meta.env.DEV && console.log("error: ", error);
     }
   };
 
   useEffect(() => {
-    if (editPost && user && user._id !== editPost.owner._id) {
-      navigate(`/posts/${editPost._id}`);
+    if (user && formData.owner && user._id !== formData.owner._id) {
+      navigate(`/posts/${params._id}`);
     }
-    edit && editPost && setFormData(editPost);
-  }, [editPost]);
+  }, [formData, user]);
 
   useEffect(() => {
     if (params._id) {
       setEdit(true);
-      !editPost ? dispatch(getPost(params._id)) : setFormData(editPost);
+      if (!currentPost)
+        getPost(params._id)
+          .then((res) => {
+            if (res.data) {
+              setFormData(res.data);
+            } else {
+              dispatch({ type: SOMETHING_WENT_WRONG });
+            }
+          })
+          .catch((error) => {
+            dispatch({ type: SOMETHING_WENT_WRONG, payload: { error: error, message: error.message } });
+            import.meta.env.DEV && console.log("error: ", error);
+          });
+      else setFormData(currentPost);
     }
   }, []);
 

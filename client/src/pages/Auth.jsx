@@ -1,3 +1,13 @@
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { signUp, signIn, googleSignIn } from "../actions/auth";
+import { useSelector } from "react-redux";
+import { userValidate } from "../utils/validate";
+import { AUTH_ERROR, CLEAR_AUTH_ERROR, SOMETHING_WENT_WRONG } from "../constants/actionTypes";
+
+import SpinningLoader from "../components/SpinningLoader";
+import { Avatar, Grid, TextField, InputAdornment, IconButton } from "@mui/material";
 import {
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
@@ -5,15 +15,6 @@ import {
 } from "@mui/icons-material/";
 import Input from "../components/Input";
 
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { signUp, signIn, googleSignIn } from "../actions/auth";
-import { useSelector } from "react-redux";
-import { userValidate } from "../utils/validate";
-import { Avatar, Grid, TextField, InputAdornment, IconButton } from "@mui/material";
-import { AUTH_ERROR, CLEAR_AUTH_ERROR, SOMETHING_WENT_WRONG } from "../constants/actionTypes";
-import SpinningLoader from "../components/SpinningLoader";
 
 export default function Auth() {
   const initialState = {
@@ -49,7 +50,7 @@ export default function Auth() {
       setFormData({ ...formData, [event.target.name]: event.target.value });
     } catch (error) {
       dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
-      // console.log("error: ", error);
+      import.meta.env.DEV &&  console.log('error: ', error);
     }
   };
 
@@ -65,7 +66,7 @@ export default function Auth() {
       }
     } catch (error) {
       dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
-      // console.log("error: ", error);
+      import.meta.env.DEV &&  console.log('error: ', error);
     }
   };
 

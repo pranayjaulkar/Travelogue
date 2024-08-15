@@ -1,13 +1,14 @@
 import { Chip } from "@mui/material";
 import moment from "moment";
-import CommentSection from "../components/CommentSection.jsx";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { EDIT_CURRENT_POST } from "../constants/actionTypes.js";
-import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { getPost } from "../actions/posts.js";
-import RecommendedPosts from "../components/RecommendedPosts.jsx";
+import { getPost } from "../api";
 
+const RecommendedPosts = lazy(() => import("../components/RecommendedPosts.jsx"));
+const CommentSection = lazy(() => import("../components/CommentSection.jsx"));
+import PostPageSkeleton from "../components/PostPageSkeleton.jsx";
 import {
   ArrowBackIos as ArrowBackIcon,
   ArrowForwardIos as ArrowForwardIcon,
@@ -17,12 +18,12 @@ import {
 } from "@mui/icons-material";
 import SpinningLoader from "../components/SpinningLoader.jsx";
 import { Typography } from "@mui/material";
-import { deletePost, likePost, getRecommendedPosts } from "../actions/posts.js";
+import { deletePost, likePost } from "../actions/posts.js";
 
 export default function Post() {
   const { _id } = useParams();
-  let { posts, recommendedPosts, isLoading, currentPost } = useSelector((state) => state.posts);
   const user = useSelector((state) => state.user);
+  const [currentPost, setCurrentPost] = useState(undefined);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   let [index, setIndex] = useState(0);
@@ -71,17 +72,12 @@ export default function Post() {
   let liked = currentPost?.likes.find((like) => like.toString() === user?._id.toString());
 
   useEffect(() => {
-    dispatch(getPost(_id, navigate));
-  }, [_id, dispatch, navigate]);
+    getPost(_id).then((res) => setCurrentPost(res.data));
+  }, []);
 
-  useEffect(() => {
-    if (currentPost) {
-      dispatch(getRecommendedPosts(currentPost.tags));
-    }
-  }, [currentPost]);
-
-  return isLoading || !currentPost ? (
-    <SpinningLoader className="tw-flex tw-flex-grow tw-items-center tw-justify-center tw-min-h-[600px]" size={40} />
+  console.log('currentPost: ', currentPost);
+  return !currentPost ? (
+    <PostPageSkeleton />
   ) : (
     <div className="tw-mt-8">
       {surePrompt && (
@@ -110,9 +106,9 @@ export default function Post() {
       )}
       <div className="tw-flex tw-justify-center tw-items-start tw-px-2 md:tw-px-8  tw-mb-4  tw-flex-col-reverse xl:tw-flex-row md:tw-mx-20 xl:tw-mx-28">
         {/* Details */}
-        <div className=" tw-w-full tw-px-2 md:tw-px-4 xl:tw-px-0  xl:tw-w-[50%]">
+        <div className=" tw-w-full tw-px-2 md:tw-px-4 xl:tw-px-0 xl:tw-w-[50%]">
+          {/* Head */}
           <div className="tw-flex tw-flex-col tw-items-start tw-mb-6">
-            {/* Head */}
             <div className="tw-m-2">
               {/* Title */}
               <h1 className="tw-text-3xl md:tw-text-5xl ">{currentPost.title}</h1>
@@ -140,7 +136,7 @@ export default function Post() {
               </div>
 
               {/* Edit */}
-              {user?._id === currentPost.owner._id && (
+              {user && currentPost && currentPost.owner._id === user._id && (
                 <div className="tw-flex tw-space-x-3">
                   <Link
                     className="tw-flex tw-justify-end tw-items-center tw-cursor-pointer"
@@ -161,16 +157,17 @@ export default function Post() {
               )}
             </div>
             {/* Created by */}
-            <span className="tw-font-semibold tw-text-sm tw-text-gray-800">
+            <span className="tw-font-semibold tw-flex tw-text-sm tw-text-gray-800">
               Created by:
-              {` ${currentPost.owner.firstName} ${currentPost.owner.lastName} (${currentPost.owner.email})`}
+              {` ${currentPost.owner.firstName} ${currentPost.owner.lastName} (${currentPost.owner.email}
+              )`}
             </span>
             {/* Message */}
             <p className=" tw-text-gray-600">{currentPost.message}</p>
 
             {/* TAGS */}
             <div className="tw-flex tw-text-gray-600 tw-space-x-2">
-              {currentPost?.tags.map((tag) => (
+              {currentPost.tags.map((tag) => (
                 <div key={tag} className="tag">
                   <Chip label={`#${tag}`} component={Link} to={`/posts?q=none&tags=${tag}`} clickable />
                 </div>
@@ -178,9 +175,27 @@ export default function Post() {
             </div>
           </div>
           {/* Comment section */}
-          <CommentSection />
-          <div className="tw-flex xl:tw-hidden">
-            <RecommendedPosts posts={posts} recommendedPosts={recommendedPosts} currentPost={currentPost} />
+          <Suspense
+            fallback={
+              <SpinningLoader
+                className="tw-flex tw-flex-grow tw-items-center tw-justify-center tw-min-h-[600px]"
+                size={40}
+              />
+            }
+          >
+            <CommentSection currentPost={currentPost} />
+          </Suspense>
+          <div className="tw-flex tw-h-full xl:tw-hidden">
+            <Suspense
+              fallback={
+                <SpinningLoader
+                  className="tw-flex tw-flex-grow tw-items-center tw-justify-center tw-min-h-[600px]"
+                  size={40}
+                />
+              }
+            >
+              <RecommendedPosts currentPost={currentPost} />
+            </Suspense>
           </div>
         </div>
         <div className="tw-flex xl:tw-w-[50%] tw-flex-col tw-items-center xl:tw-pl-8 tw-space-y-8">
@@ -222,7 +237,7 @@ export default function Post() {
                       >
                         <img
                           className="tw-w-full tw-h-full tw-object-contain"
-                          src={image.path.replace("/upload/", "/upload/w_1000/")}
+                          src={image.path.replace("/upload/", "/upload/w_800/")}
                           alt=""
                         />
                       </div>
@@ -239,8 +254,17 @@ export default function Post() {
             </div>
           </div>
           {/* Recommended Posts */}
-          <div className="tw-hidden xl:tw-flex">
-            <RecommendedPosts posts={posts} recommendedPosts={recommendedPosts} currentPost={currentPost} />
+          <div className="tw-hidden xl:tw-flex tw-w-full">
+            <Suspense
+              fallback={
+                <SpinningLoader
+                  className="tw-flex tw-flex-grow tw-items-center tw-justify-center tw-min-h-[600px]"
+                  size={40}
+                />
+              }
+            >
+              <RecommendedPosts currentPost={currentPost} />
+            </Suspense>
           </div>
         </div>
       </div>
