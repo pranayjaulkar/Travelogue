@@ -6,6 +6,8 @@ export default function ErrorPage() {
   let errorTitle = null;
   if (error?.statusCode === 500 || error?.error?.response?.status === 500) {
     errorTitle = "Internal Server Error";
+  } else if (error.error?.response?.statusText) {
+    errorTitle = error.error.response.statusText;
   } else {
     errorTitle = (
       <>
@@ -27,7 +29,10 @@ export default function ErrorPage() {
       <div className="mars"></div>
       <div className="tw-mt-72 tw-flex tw-items-center tw-flex-col">
         <p className="error title tw-mb-8">{errorTitle}</p>
-        <p className="subtitle md:tw-text-lg">{error.message || "An unexpected error has ocurred."}</p>
+        <div className="subtitle md:tw-text-lg">
+          {error.error?.response?.data?.error && <p className="tw-mb-4">{error.error.response.data.error}</p>}
+          <p>{error.message || "An unexpected error has ocurred."}</p>
+        </div>
         <div className="tw-flex tw-justify-center">
           <a className="btn-back" href="/">
             Back to Home page

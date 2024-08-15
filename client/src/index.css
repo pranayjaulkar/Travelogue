@@ -7,7 +7,16 @@ body {
   box-sizing: border-box;
 }
 
-.open-sans {
+span,
+div,
+button,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: "Open Sans", sans-serif;
   font-style: normal;
 }
@@ -29,25 +38,6 @@ body {
 }
 
 /* Error Page CSS */
-.mars {
-  left: 0;
-  right: 0;
-  bottom: 0;
-  position: absolute;
-  height: 27vmin;
-  background: url("https://assets.codepen.io/1538474/mars.svg") no-repeat bottom center;
-  background-size: cover;
-}
-.logo-404 {
-  position: absolute;
-  margin-left: auto;
-  margin-right: auto;
-  left: 0;
-  right: 0;
-  top: 16vmin;
-  width: 30vmin;
-}
-
 .spaceship {
   position: absolute;
   bottom: 15vmin;
@@ -76,15 +66,7 @@ body {
   text-decoration: none;
   border-radius: 5px;
 }
-.btn-back:hover {
-  background: white;
-  color: #4d007d;
-}
-.meteor {
-  position: absolute;
-  right: 2vmin;
-  top: 16vmin;
-}
+
 .title {
   color: white;
   font-family: "Nunito", sans-serif;

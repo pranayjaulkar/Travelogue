@@ -9,6 +9,7 @@ import Create from "./pages/Create";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import ErrorPage from "./components/ErrorPage";
+import Search from "./pages/Search";
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
         <Route exact path="/" element={<Home />}></Route>
         <Route exact path="/posts" element={<Home />}></Route>
         <Route exact path="/posts/:_id" element={<Post />}></Route>
-        <Route exact path="/posts/search" element={<Home />}></Route>
+        <Route exact path="/posts/search" element={<Search />}></Route>
         <Route exact path="/posts/create" element={<Create />}></Route>
         <Route exact path="/posts/:_id/edit" element={<Create />}></Route>
         <Route exact path="/auth" element={<Auth />}></Route>

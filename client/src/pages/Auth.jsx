@@ -15,7 +15,6 @@ import {
 } from "@mui/icons-material/";
 import Input from "../components/Input";
 
-
 export default function Auth() {
   const initialState = {
     firstName: "",
@@ -50,7 +49,7 @@ export default function Auth() {
       setFormData({ ...formData, [event.target.name]: event.target.value });
     } catch (error) {
       dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
-      import.meta.env.DEV &&  console.log('error: ', error);
+      import.meta.env.DEV && console.log("error: ", error);
     }
   };
 
@@ -66,7 +65,7 @@ export default function Auth() {
       }
     } catch (error) {
       dispatch({ type: SOMETHING_WENT_WRONG, payload: { type: SOMETHING_WENT_WRONG, message: error.message } });
-      import.meta.env.DEV &&  console.log('error: ', error);
+      import.meta.env.DEV && console.log("error: ", error);
     }
   };
 
@@ -208,9 +207,9 @@ export default function Auth() {
               {/* SignIn or SignUp */}
               <button
                 type="submit"
-                className="tw-bg-blue-500 tw-min-w-[98px] tw-px-6 tw-py-2 tw-rounded-full tw-text-white tw-flex tw-justify-center tw-items-center"
+                className="tw-bg-blue-500 tw-min-w-[98px] tw-px-6 tw-py-2 tw-rounded-full  tw-text-white tw-flex tw-justify-center tw-items-center"
               >
-                {isLoading ? <SpinningLoader size={20} /> : isSignUp ? "Sign Up" : "Sign In"}
+                {isLoading ? <SpinningLoader color="#fff" size={20} /> : isSignUp ? "Sign Up" : "Sign In"}
               </button>
             </div>
 

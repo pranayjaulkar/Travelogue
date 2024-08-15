@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { updatePost, createPost } from "../actions/posts";
 import { getPost } from "../api";
+import errorHandler from "../utils/errorHandler";
 
 import { MuiChipsInput } from "mui-chips-input";
 import { postValidate } from "../utils/validate";
@@ -58,6 +59,9 @@ export default function Create() {
   const handleSubmit = (event) => {
     try {
       event.preventDefault();
+
+      if (!user) navigate("/auth");
+
       const err = postValidate({
         formData,
         setValidationError,
@@ -73,7 +77,7 @@ export default function Create() {
           }
         }
 
-        if (edit && user && formData.owner?._id === user._id) {
+        if (edit && formData.owner?._id === user._id) {
           dispatch(
             updatePost({
               imageData,
@@ -114,11 +118,11 @@ export default function Create() {
             if (res.data) {
               setFormData(res.data);
             } else {
-              dispatch({ type: SOMETHING_WENT_WRONG });
+              errorHandler({ dispatch });
             }
           })
           .catch((error) => {
-            dispatch({ type: SOMETHING_WENT_WRONG, payload: { error: error, message: error.message } });
+            errorHandler({ dispatch, error });
             import.meta.env.DEV && console.log("error: ", error);
           });
       else setFormData(currentPost);
@@ -180,7 +184,7 @@ export default function Create() {
                   className="tw-absolute tw-cursor-pointer tw-right-0 tw-mr-2 tw-mt-2"
                 />
                 <img
-                  className="tw-w-full tw-h-full tw-object-contain"
+                  className="tw-min-w-44 tw-w-full tw-h-full tw-object-contain"
                   src={image.path.replace("/upload/", "/upload/w_250/")}
                   alt=""
                 />

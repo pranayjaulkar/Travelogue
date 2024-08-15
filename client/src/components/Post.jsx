@@ -1,4 +1,4 @@
-import { Card, CardActions, CardContent, CardMedia } from "@mui/material/";
+import { Card, CardActions, CardContent } from "@mui/material/";
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
 import moment from "moment";
 import FallbackImage from "../assets/images/fallback-image.png";
@@ -18,25 +18,25 @@ export default function Post({ post }) {
         }}
       >
         {/* Image */}
-        <CardMedia
-          style={{
-            minHeight: "214px",
-            backgroundColor: "rgba(0,0,0,.5)",
-            backgroundBlendMode: "darken",
-          }}
-          component={Link}
-          to={`/posts/${post._id}`}
-          image={post.images[0]?.path ? post.images[0].path.replace("/upload/", "/upload/w_400/") : FallbackImage}
-          title={post.title}
-        ></CardMedia>
-
-        {/* Title */}
-        <div className="tw-absolute tw-top-5 tw-left-5 tw-text-white">
-          <Link to={`/posts/${post._id}`}>
+        <div className="tw-relative tw-w-full tw-h-52 tw-max-h-52 ">
+          <Link className="tw-block tw-w-full tw-h-full" to={`/posts/${post._id}`}>
+            <div
+              style={{
+                backgroundImage: `url(${
+                  post.images[0]?.path ? post.images[0].path.replace("/upload/", "/upload/w_400/") : FallbackImage
+                })`,
+              }}
+              className="tw-w-full tw-h-52 tw-max-h-52 tw-bg-blend-darken tw-bg-[rgba(0,0,0,0.4)] tw-bg-cover tw-bg-center"
+            ></div>
+          </Link>
+          <Link className="tw-absolute tw-top-5 tw-left-5 tw-text-white" to={`/posts/${post._id}`}>
             <p className="tw-text-xl">{post.title}</p>
             <p>{moment(post.createdAt).fromNow()}</p>
           </Link>
         </div>
+
+        {/* Title */}
+
         <div className="tw-p-4 tw-grow">
           {/* Like button */}
           <CardActions sx={{ padding: "0rem" }}>

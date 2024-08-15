@@ -1,28 +1,25 @@
-import { getPostsBySearch } from "../actions/posts";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 
 import { TextField } from "@mui/material";
 import { MuiChipsInput } from "mui-chips-input";
 
-export default function SearchBar({ showSearchBar }) {
-  const [tags, setTags] = useState([]);
+export default function SearchBar({ showSearchBar, search, tags, setTags, setSearch }) {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [search, setSearch] = useState("");
+  // const query = new URLSearchParams(location.search);
+  // const [tags, setTags] = useState(query.get("tags") ? query.get("tags").split(",") : []);
+  // const [search, setSearch] = useState(query.get("q") && query.get("q") !== "none" ? query.get("q") : "");
 
   const handleSearch = () => {
     if (search.trim() || tags.length) {
-      dispatch(getPostsBySearch({ query: search.trim(), tags }, navigate));
       navigate(`/posts/search?q=${search.trim() || "none"}&tags=${tags.join(",")}`);
     }
   };
 
   const handleEnterKeyPress = (event) => {
     if (event.keyCode === 13 && search.trim()) {
-      dispatch(getPostsBySearch({ query: search.trim(), tags }, navigate));
+      navigate(`/posts/search?q=${search.trim() || "none"}&tags=${tags.join(",")}`);
     }
   };
 
@@ -43,7 +40,7 @@ export default function SearchBar({ showSearchBar }) {
         <TextField
           name="search"
           label="Search Memories"
-          value={search}
+          value={search || ""}
           size="small"
           onChange={(e) => setSearch(e.target.value)}
           onKeyUp={handleEnterKeyPress}
@@ -53,7 +50,7 @@ export default function SearchBar({ showSearchBar }) {
           style={{ marginTop: "0px", minWidth: "200px", maxWidth: "400px" }}
           label="Search Using Tags"
           size="small"
-          value={tags}
+          value={tags || ""}
           onChange={(tag) => setTags(tag)}
         />
 

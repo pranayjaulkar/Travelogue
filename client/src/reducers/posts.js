@@ -9,7 +9,6 @@ import {
   FETCH_POST,
   UPDATE_CURRENT_POST,
   EDIT_CURRENT_POST,
-  CLEAR_EDIT_POST,
 } from "../constants/actionTypes";
 const defaultPostsObj = {
   posts: [],
@@ -59,12 +58,6 @@ export default function reducer(postsObj = defaultPostsObj, action) {
       return {
         ...postsObj,
         currentPost: action.payload,
-      };
-
-    case CLEAR_EDIT_POST:
-      return {
-        ...postsObj,
-        currentPost: null,
       };
 
     case DELETE:

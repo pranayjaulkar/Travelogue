@@ -2,21 +2,18 @@ import { CLEAR_AUTH_ERROR, AUTH_ERROR, SOMETHING_WENT_WRONG } from "../constants
 
 const defaultError = {
   error: null,
-  type: "",
+  type: SOMETHING_WENT_WRONG,
   message: "",
   statusCode: null,
 };
 export default function errorReducer(error = defaultError, action) {
   if (action.type === AUTH_ERROR) {
-    console.log("SOMETHING_WENT_WRONG: ", SOMETHING_WENT_WRONG);
-    return { ...action.payload };
+    return { ...action.payload, type: action.type };
   }
   if (action.type === CLEAR_AUTH_ERROR) {
-    console.log("SOMETHING_WENT_WRONG: ", SOMETHING_WENT_WRONG);
     return { defaultError };
   }
   if (action.type === SOMETHING_WENT_WRONG) {
-    console.log("SOMETHING_WENT_WRONG: ", SOMETHING_WENT_WRONG);
     return { ...action.payload };
   } else {
     return error;

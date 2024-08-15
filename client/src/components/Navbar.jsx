@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { refreshAccessToken, logout } from "../actions/auth";
@@ -15,8 +15,12 @@ export default function Navbar() {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const query = new URLSearchParams(location.search);
+  const [tags, setTags] = useState(query.get("tags") ? query.get("tags").split(",") : []);
+  const [search, setSearch] = useState(query.get("q") && query.get("q") !== "none" ? query.get("q") : "");
   const [toggleMenu, setToggleMenu] = useState(false);
-  const [showSearchBar, setShowSearchBar] = useState(false);
+  const [showSearchBar, setShowSearchBar] = useState(search || tags.length || false);
   const [loading, setLoading] = useState(true);
 
   const logoutHandler = () => {
@@ -33,6 +37,14 @@ export default function Navbar() {
   useEffect(() => {
     dispatch(refreshAccessToken(navigate));
   }, [dispatch, navigate]);
+
+  useEffect(() => {
+    if (location.pathname !== "/posts/search") {
+      setShowSearchBar(false);
+      setTags([]);
+      setSearch("");
+    }
+  }, [location]);
 
   useEffect(() => {
     setLoading(false);
@@ -93,7 +105,13 @@ export default function Navbar() {
                     onClick={() => setShowSearchBar((prev) => !prev)}
                     className="tw-px-6 tw-py-2 tw-rounded-md tw-text-gray-800"
                   >
-                    <div className="tw-w-[25px] tw-h-full tw-overflow-hidden tw-flex tw-items-center">
+                    <div
+                      className="tw-w-[25px] tw-h-full tw-overflow-hidden tw-flex tw-items-center"
+                      onClick={() => {
+                        setSearch("");
+                        setTags([]);
+                      }}
+                    >
                       <SearchIcon
                         style={{
                           transform: `translateX(${showSearchBar && !loading ? -25 : 0}px)`,
@@ -133,7 +151,7 @@ export default function Navbar() {
         </div>
       </div>
       {/* Search Bar */}
-      <SearchBar showSearchBar={showSearchBar} />
+      <SearchBar showSearchBar={showSearchBar} search={search} tags={tags} setSearch={setSearch} setTags={setTags} />
     </div>
   );
 }

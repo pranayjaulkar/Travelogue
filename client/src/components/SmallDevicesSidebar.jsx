@@ -9,7 +9,7 @@ export default function SmallDevicesSidebar({ setToggleMenu, toggleMenu, handleT
     { url: "/", icon: Home, name: "Home", action: handleOnClick },
     { url: "/posts/create", icon: Plus, name: "Create", action: handleOnClick },
     {
-      url: "/",
+      url: user ? "/" : "/auth",
       icon: user ? LogOut : KeyRound,
       name: user ? "Logout" : "Login / Sign Up",
       action: user ? logoutHandler : handleToggleMenu,

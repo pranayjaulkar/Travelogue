@@ -16,16 +16,18 @@ export default function CommentSection({ currentPost }) {
       if (comment.trim() && currentPost) {
         const post = {
           ...currentPost,
-          comments: [...currentPost.comments, { text: comment.trim(), owner: user._id }],
+          comments: currentPost.comments?.length
+            ? [...currentPost.comments, { text: comment.trim(), owner: user._id }]
+            : [{ text: comment.trim(), owner: user._id }],
         };
 
         dispatch(
           updatePost({
-            updateCurrentPost: true,
             post,
             accessToken: user.accessToken,
           })
         );
+        setComment("");
       } else {
         setComment("");
       }
@@ -57,17 +59,17 @@ export default function CommentSection({ currentPost }) {
         </button>
       </div>
       <div className="tw-mt-8 tw-space-y-2">
-        {!!currentPost?.comments.length && (
-          <span className="tw-font-semibold">{currentPost?.comments.length} Comments</span>
+        {!!currentPost?.comments?.length && (
+          <span className="tw-font-semibold">Comments ({currentPost.comments.length})</span>
         )}
         <div className="tw-flex tw-flex-col tw-space-y-4">
-          {currentPost?.comments.map((comment) => (
+          {currentPost?.comments?.map((comment) => (
             <div key={comment._id} className="tw-flex tw-flex-col">
-              <div className="tw-flex tw-items-center tw-space-x-2">
+              <div className="tw-flex tw-items-center">
                 <AccountCircleSharpIcon />
-                <span className="tw-font-semibold">{comment.owner?.email}</span>
+                <span className="tw-font-medium tw-ml-2">{comment.owner?.email}</span>
               </div>
-              <span className="tw-ml-4 tw-break-words tw-text-gray-600">{comment.text}</span>
+              <span className="tw-ml-8 tw-break-words tw-text-gray-600">{comment.text}</span>
             </div>
           ))}
         </div>

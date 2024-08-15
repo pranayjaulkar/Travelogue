@@ -18,10 +18,9 @@ module.exports.getPost = async (req, res, next) => {
 };
 
 module.exports.getPosts = async (req, res, next) => {
-  let { page } = req.query;
-  if (!page) page = 1;
-  else page = Number(page);
-  const limit = 8;
+  let { page, limit } = req.query;
+  page = !!page ? Number(page) : 1;
+  limit = !!limit ? Number(limit) : 10;
   const startIndex = (page - 1) * limit;
   const total = await postMessage.countDocuments();
   const posts = await postMessage
@@ -43,6 +42,7 @@ module.exports.getPosts = async (req, res, next) => {
 
 module.exports.getPostsBySearch = async (req, res, next) => {
   let { q, tags } = req.query;
+
   if ((!q || q === "none") && (!tags || !tags.length)) {
     const posts = await postMessage
       .find()
@@ -57,7 +57,9 @@ module.exports.getPostsBySearch = async (req, res, next) => {
   } else {
     tags = [];
   }
+
   const title = q !== "none" ? new RegExp(q, "i") : "";
+
   const posts = await postMessage
     .find({
       $or: [{ title }, { message: title }, { tags: { $in: tags } }],
@@ -67,6 +69,7 @@ module.exports.getPostsBySearch = async (req, res, next) => {
       path: "comments",
       populate: { path: "owner", select: "-password" },
     });
+
   res.status(200).json(posts);
 };
 
