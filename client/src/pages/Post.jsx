@@ -9,6 +9,7 @@ import { getPost } from "../api";
 const RecommendedPosts = lazy(() => import("../components/RecommendedPosts.jsx"));
 const CommentSection = lazy(() => import("../components/CommentSection.jsx"));
 import PostPageSkeleton from "../components/PostPageSkeleton.jsx";
+import ConfirmDeleteModal from "../components/ConfirmDeleteModal.jsx";
 import {
   ArrowBackIos as ArrowBackIcon,
   ArrowForwardIos as ArrowForwardIcon,
@@ -17,7 +18,6 @@ import {
   Edit as EditIcon,
 } from "@mui/icons-material";
 import SpinningLoader from "../components/SpinningLoader.jsx";
-import { Typography } from "@mui/material";
 import { deletePost, likePost } from "../actions/posts.js";
 
 export default function Post() {
@@ -30,13 +30,13 @@ export default function Post() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   let [index, setIndex] = useState(0);
-  let [surePrompt, setSurePrompt] = useState(false);
+  let [open, setOpen] = useState(false);
 
   const handleEdit = () => {
     dispatch({ type: EDIT_CURRENT_POST, payload: currentPost });
   };
 
-  const handleDeleteConfirm = () => {
+  const handleConfirm = () => {
     if (user && user._id === currentPost.owner._id) {
       dispatch(deletePost(currentPost._id, navigate, user.accessToken));
     } else {
@@ -47,10 +47,12 @@ export default function Post() {
   const handleLike = () => {
     if (user) {
       let index = -1;
+
       //if posts has likes then search for userid in likes.
       if (currentPost.likes.length) {
         index = currentPost.likes.findIndex((_id) => _id.toString() === user._id);
       }
+
       //if userId is not found in likes array then add it
       if (index === -1) {
         setLiked(true);
@@ -97,30 +99,7 @@ export default function Post() {
   else
     return (
       <div className="tw-mt-8">
-        {surePrompt && (
-          <div className="tw-flex tw-justify-center tw-items-center tw-fixed tw-top-0 tw-left-0 tw-bottom-0 tw-right-0 tw-z-10 tw-bg-[rgba(0,0,0,0.5)] ">
-            <div className="tw-flex tw-flex-col tw-justify-center tw-items-center tw-p-4 tw-rounded-md tw-bg-white">
-              <Typography>Are you sure you want to delete this Post?</Typography>
-              <div className="tw-flex tw-justify-around tw-items-center tw-w-full">
-                <button
-                  onClick={() => {
-                    setSurePrompt(false);
-                  }}
-                  className="tw-px-4 tw-py-1 tw-text-gray-700 hover:tw-bg-gray-200 tw-border tw-rounded-md tw-flex tw-justify-center tw-items-center tw-my-2 tw-mx-4 tw-transition-all tw-duration-300 "
-                >
-                  Cancel
-                </button>
-                <button
-                  className="tw-px-4 tw-py-1 tw-text-white tw-bg-red-500 hover:tw-bg-red-700 tw-border tw-rounded-md tw-flex tw-justify-center tw-items-center tw-my-2 tw-mx-4 tw-transition-all tw-duration-300 "
-                  onClick={handleDeleteConfirm}
-                  color="error"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmDeleteModal open={open} setOpen={setOpen} onConfirm={handleConfirm} />
         <div className="tw-flex tw-justify-center tw-items-start tw-px-2 md:tw-px-8  tw-mb-4  tw-flex-col-reverse xl:tw-flex-row md:tw-mx-20 xl:tw-mx-28">
           {/* Details */}
           <div className=" tw-w-full tw-px-2 md:tw-px-4 xl:tw-px-0 xl:tw-w-[50%]">
@@ -165,7 +144,7 @@ export default function Post() {
                     <div
                       className="tw-flex tw-justify-end tw-items-center tw-cursor-pointer "
                       onClick={() => {
-                        setSurePrompt(true);
+                        setOpen(true);
                       }}
                     >
                       <DeleteIcon />
