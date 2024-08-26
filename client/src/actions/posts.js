@@ -43,8 +43,10 @@ export const getPostsBySearch = (searchQuery) => async (dispatch) => {
     dispatch({ type: START_LOADING });
     const res = await api.getPostsBySearch(searchQuery);
     //if res.data(posts array) array is empty then dispatch NO_POSTS_FOUND else dispatch FETCH_BY_SEARCH
-    if (!res.data.length) {
+    if (res?.data.length) {
       dispatch({ type: FETCH_BY_SEARCH, payload: res.data });
+    } else {
+      dispatch({ type: FETCH_BY_SEARCH, payload: [] });
     }
 
     dispatch({ type: STOP_LOADING });
