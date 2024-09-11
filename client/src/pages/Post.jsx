@@ -232,11 +232,11 @@ export default function Post() {
                           style={{ width: `${100 / currentPost.images.length}%` }}
                         >
                           <img
-                            className="tw-object-cover tw-bg-gray-100 tw-aspect-square"
+                            className="tw-bg-gray-100 "
                             src={image.path.replace("/upload/", "/upload/w_800/")}
                             alt=""
                           />
-                        </div>
+                        </div>  
                       ))
                     ) : (
                       <img
