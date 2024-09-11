@@ -76,14 +76,16 @@ export default function Auth() {
 
   useEffect(() => {
     if (user) navigate("/");
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    document.body.appendChild(script);
-    return () => {
-      document.body.removeChild(script);
-    };
+    else {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      document.body.appendChild(script);
+      return () => {
+        document.body.removeChild(script);
+      };
+    }
   }, []);
 
   useEffect(() => {
@@ -216,7 +218,7 @@ export default function Auth() {
             {/* Google SignIn */}
             <div
               id="g_id_onload"
-              data-client_id="593387560130-t7sci6qnu6d2r0gnoqkb4n7vtsiosf4k.apps.googleusercontent.com"
+              data-client_id="395862073298-bdfhqp0tdkm4qn749umnrl4oj79odihc.apps.googleusercontent.com"
               data-context="signin"
               data-ux_mode="popup"
               data-callback="handleCredentialResponse"
